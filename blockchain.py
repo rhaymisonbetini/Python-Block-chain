@@ -25,3 +25,17 @@ class BlockChain:
 
     def get_previous_block(self):
         return self.chain[-1]
+
+    def proof_of_work(self, previos_proof):
+        new_proof = 1
+        check_proof = False
+
+        while check_proof is False:
+            has_operation = hashlib.sha256(
+                str(new_proof**2 - previos_proof**2).encode()).hexdigest()
+            if has_operation[:4] == '0000':
+                check_proof = True
+            else:
+                new_proof += 1
+                
+        return new_proof
