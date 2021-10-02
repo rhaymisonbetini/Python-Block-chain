@@ -1,7 +1,6 @@
 import datetime
 import hashlib
 import json
-from flask import Flask, jsonify, request
 import requests
 from uuid import uuid4
 from urllib.parse import urlparse
@@ -13,6 +12,7 @@ class Blockchain:
         self.chain = []
         self.transactions = []
         self.create_block(proof=1, previous_hash='0')
+        self.nodes = set()
 
     def create_block(self, proof, previous_hash):
         block = {
@@ -72,43 +72,27 @@ class Blockchain:
         previus_block = self.get_previous_block()
         return previus_block['index'] + 1
 
+    def add_node(self, address,):
+        parse_url = urlparse(address)
+        self.nodes.add(parse_url.netloc)
 
-app = Flask(__name__)
-app.config['JSONIFY_PRETTYPRINT_REGULAR'] = False
+    def replace_chain(self):
+        networks = self.nodes
+        longest_chain = None
+        max_length = len(self.chain)
 
-blockchain = Blockchain()
+        for node in networks:
+            response = requests.get(f'http://{node}/get_chain')
+            if response.status_code == 200:
+                length = response.json(['length'])
+                chain = response.json(['chain'])
 
+                if length > max_length and self.is_chain_valid(chain):
+                    max_length = length
+                    longest_chain = chain
 
-@app.route('/mine_block', methods=['GET'])
-def mine_block():
-    previous_block = blockchain.get_previous_block()
-    previous_proof = previous_block['proof']
-    proof = blockchain.proof_of_work(previous_proof)
-    previous_hash = blockchain.hash(previous_block)
-    block = blockchain.create_block(proof, previous_hash)
-    response = {'message': 'Parabens voce acabou de minerar um bloco!',
-                'index': block['index'],
-                'timestamp': block['timestamp'],
-                'proof': block['proof'],
-                'previous_hash': block['previous_hash']}
-    return jsonify(response), 200
-
-
-@app.route('/get_chain', methods=['GET'])
-def get_chain():
-    response = {'chain': blockchain.chain,
-                'length': len(blockchain.chain)}
-    return jsonify(response), 200
-
-
-@app.route('/is_valid', methods=['GET'])
-def is_valid():
-    is_valid = blockchain.is_chain_valid(blockchain.chain)
-    if is_valid:
-        response = {'message': ' Tudo certo, o blockchain e valido '}
-    else:
-        response = {'message': ' O blockchain nao e valido '}
-    return jsonify(response), 200
-
-
-app.run(host='0.0.0.0', port=5000)
+        if longest_chain:
+            self.chain = longest_chain
+            return True
+        else:
+            return False
