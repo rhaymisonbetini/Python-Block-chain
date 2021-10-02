@@ -3,9 +3,10 @@ from flask import Flask, jsonify, request
 from uuid import uuid4
 from urllib.parse import urlparse
 
-
 app = Flask(__name__)
 app.config['JSONIFY_PRETTYPRINT_REGULAR'] = False
+
+node_address = str(uuid4()).replace('-', '')
 
 blockchain = Blockchain()
 
@@ -16,12 +17,18 @@ def mine_block():
     previous_proof = previous_block['proof']
     proof = blockchain.proof_of_work(previous_proof)
     previous_hash = blockchain.hash(previous_block)
+
+    blockchain.add_transaction(
+        sender=node_address, receiver='CRISTIAN', amount=1)
+
     block = blockchain.create_block(proof, previous_hash)
     response = {'message': 'Parabens voce acabou de minerar um bloco!',
                 'index': block['index'],
                 'timestamp': block['timestamp'],
                 'proof': block['proof'],
-                'previous_hash': block['previous_hash']}
+                'previous_hash': block['previous_hash'],
+                'transactions': block['transactions']
+                }
     return jsonify(response), 200
 
 
@@ -40,6 +47,20 @@ def is_valid():
     else:
         response = {'message': ' O blockchain nao e valido '}
     return jsonify(response), 200
+
+
+@app.route('/add_transaction', methods=['POST'])
+def add_transaction():
+    json = request.get_json()
+    transaction_key = ['sendeer', 'receiver', 'amount']
+    if not(key in json for key in transaction_key):
+        return 'Transação incompleta!', 400
+
+    index = blockchain.add_transaction(
+        json['sender'], json['receiver'], json['amount'])
+
+    response = ('message:' f'Esta transacão sera adicionada ao bloco {index}')
+    return jsonify(response), 201
 
 
 app.run(host='0.0.0.0', port=5000)
