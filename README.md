@@ -42,5 +42,14 @@ To create transactions we will use the POST ADD_TRANSACTIONS route.
 ```
 <br/>
 
-All right. You will receive a message telling you which block your transaction will be added to once it is mined.
+All right. You will receive a message telling you which block your transaction will be added to once it is mined. <br/>
+
+# Routes:
+[GET] get_chain: Route returns status 200 with entire blockchain chain up to last block mined
+
+[GET] is_valid: Check blockchain chain integrity
+
+[GET] replace_chain: Route that scans with others
+checking block updates in the block chain chain for
+updating and validation of chains and new blocks
 
