@@ -16,7 +16,7 @@ After this process, you must inform each server of the communication host betwee
 through the CONNECT_NODES route that will receive the following parameter.
 
 Where each host must be subsisted and added to its peers in JSON. <br>
-In the example below it is connected to eden 5002 and updating my nodes <br/>
+The example below is connected to eden 5002 and updating my nodes <br/>
 
 ```
 {
