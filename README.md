@@ -27,4 +27,19 @@ Where each host must be subsisted and added to its peers in JSON. <br>
 }
 ```
 
-After this process you are able to mine, carry out transactions and update the blockchain chain on your network.
+After this process you are able to mine, carry out transactions and update the blockchain chain on your network. <br/>
+
+# Creating Transactions
+To create transactions we will use the POST ADD_TRANSACTIONS route.
+
+```
+{
+    "sender": "JULIO CAZAGRANDE",
+    "receiver": "ANDRÉ CAVALEIRA",
+    "amount": 0.0002
+}
+```
+<br/>
+
+All right. You will receive a message telling you which block your transaction will be added to once it is mined.
+
