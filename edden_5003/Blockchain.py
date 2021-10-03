@@ -12,7 +12,7 @@ class Blockchain:
         self.chain = []
         self.transactions = []
         self.create_block(proof=1, previous_hash='0')
-        self.nodes = set()
+        self.nodes = []
 
     def create_block(self, proof, previous_hash):
         block = {
@@ -74,7 +74,7 @@ class Blockchain:
 
     def add_node(self, address,):
         parse_url = urlparse(address)
-        self.nodes.add(parse_url.netloc)
+        self.nodes.append(parse_url.netloc)
 
     def replace_chain(self):
         networks = self.nodes
@@ -84,8 +84,8 @@ class Blockchain:
         for node in networks:
             response = requests.get(f'http://{node}/get_chain')
             if response.status_code == 200:
-                length = response.json(['length'])
-                chain = response.json(['chain'])
+                length = response.json()['length']
+                chain = response.json()['chain']
 
                 if length > max_length and self.is_chain_valid(chain):
                     max_length = length
