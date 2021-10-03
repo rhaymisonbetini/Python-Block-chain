@@ -56,26 +56,32 @@ def is_valid():
 
 @app.route('/add_transaction', methods=['POST'])
 def add_transaction():
-    json = request.data.decode("utf-8")
+    jso =json.loads(request.data)
+
     transaction_keys = ['sender', 'receiver', 'amount']
-    if not all(key in json for key in transaction_keys):
+    if not all(key in jso for key in transaction_keys):
         return 'Alguns elementos estao faltando', 400
     index = blockchain.add_transaction(
-        json['sender'], json['receiver'], json['amount'])
+        jso['sender'], jso['receiver'], jso['amount'])
     response = {'message': f'Esta tramsacao sera adicionada ao bloco {index}'}
     return jsonify(response), 201
 
 
 @app.route('/connect_node', methods=['POST'])
 def connect_node():
-    json = request.data
-    nodes = json.decode("utf-8")
+
+    jso = json.loads(request.data)
+    nodes = jso.get('nodes',None)
+
+    print(nodes)
     if nodes is None:
         return "Vazio", 400
     for node in nodes:
         blockchain.add_node(node)
+
+    print(blockchain.nodes)
     response = {'message': 'Todos nos conectados, blockchain contem os seguintes nos:',
-                'total_nodes': list(blockchain.nodes)}
+                'total_nodes': blockchain.nodes}
     return jsonify(response), 201
 
 
