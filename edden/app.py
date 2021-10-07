@@ -1,5 +1,4 @@
 from flask import Flask, jsonify, request
-import requests
 from uuid import uuid4
 from urllib.parse import urlparse
 import json
@@ -14,6 +13,28 @@ app.config['JSONIFY_PRETTYPRINT_REGULAR'] = False
 node_address = str(uuid4()).replace('-', '')
 
 blockchain = Blockchain()
+
+
+@app.route('/create-new-block', methods=['POST'])
+def create_new_block():
+    jso = json.loads(request.data)
+    new_prof = jso['new_prof']
+    user_edden = jso['USER_EDDEN']
+    previous_block = blockchain.get_previous_block()
+    previous_hash = blockchain.hash(previous_block)
+
+    blockchain.add_transaction(
+        sender=node_address, receiver=user_edden, amount=1)
+    block = blockchain.create_block(int(new_prof), previous_hash)
+
+    response = {'message': 'Parabens voce acabou de minerar um bloco!',
+                'index': block['index'],
+                'timestamp': block['timestamp'],
+                'proof': block['proof'],
+                'previous_hash': block['previous_hash'],
+                'transactions': block['transactions']
+                }
+    return jsonify(response), 201
 
 
 @app.route('/mine_block', methods=['GET'])
@@ -56,7 +77,7 @@ def is_valid():
 
 @app.route('/add_transaction', methods=['POST'])
 def add_transaction():
-    jso =json.loads(request.data)
+    jso = json.loads(request.data)
 
     transaction_keys = ['sender', 'receiver', 'amount']
     if not all(key in jso for key in transaction_keys):
@@ -71,7 +92,7 @@ def add_transaction():
 def connect_node():
 
     jso = json.loads(request.data)
-    nodes = jso.get('nodes',None)
+    nodes = jso.get('nodes', None)
 
     print(nodes)
     if nodes is None:
