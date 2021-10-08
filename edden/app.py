@@ -18,14 +18,17 @@ blockchain = Blockchain()
 @app.route('/create-new-block', methods=['POST'])
 def create_new_block():
     jso = json.loads(request.data)
-    new_prof = jso['new_prof']
     user_edden = jso['USER_EDDEN']
+
     previous_block = blockchain.get_previous_block()
+    previous_proof = previous_block['proof']
+    proof = blockchain.proof_of_work(previous_proof)
     previous_hash = blockchain.hash(previous_block)
 
     blockchain.add_transaction(
         sender=node_address, receiver=user_edden, amount=1)
-    block = blockchain.create_block(int(new_prof), previous_hash)
+
+    block = blockchain.create_block(proof, previous_hash)
 
     response = {'message': 'Parabens voce acabou de minerar um bloco!',
                 'index': block['index'],
